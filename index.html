@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Tool Finder</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="logo">
+            🤖 AI Tool Finder
+        </div>
+
+
+        <nav>
+
+            <a href="#">Home</a>
+
+            <a href="#">AI Tools</a>
+
+            <a href="#">Categories</a>
+
+            <a href="#">About</a>
+
+        </nav>
+
+    </header>
+
+
+
+    <main>
+
+
+        <!-- HERO SECTION -->
+
+        <section class="hero">
+
+            <h1>
+                Find the Right AI Tool for Your Task
+            </h1>
+
+
+            <p>
+                Tell us what you want to create.
+                We'll help you find the best AI tool.
+            </p>
+
+
+
+            <!-- AI TOOL SEARCH -->
+
+            <div class="search-container">
+
+                <input
+    type="text"
+    id="toolSearch"
+    placeholder="What do you want to create?  e.g. Make a YouTube video..."
+    autocomplete="off"
+                     > 
+
+
+                <button onclick="searchTools()">
+
+                    Find AI Tools
+
+                </button>
+
+            </div>
+
+
+
+            <!-- CATEGORY FINDER BUTTON -->
+
+            <button onclick="startFinder()">
+
+                Or Browse Categories →
+
+            </button>
+
+        </section>
+
+
+
+        <!-- CATEGORY SECTION -->
+
+        <section class="categories">
+
+            <h2>
+                What do you want to do?
+            </h2>
+
+
+            <div class="category-grid">
+
+
+
+                <!-- VIDEO -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('video')"
+                >
+
+                    🎬
+
+                    <h3>
+                        Make Videos
+                    </h3>
+
+                    <p>
+                        Create videos, reels and ads
+                    </p>
+
+                </div>
+
+
+
+                <!-- IMAGE -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('image')"
+                >
+
+                    🎨
+
+                    <h3>
+                        Generate Images
+                    </h3>
+
+                    <p>
+                        Create AI images and artwork
+                    </p>
+
+                </div>
+
+
+
+                <!-- WEBSITE -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('website')"
+                >
+
+                    🌐
+
+                    <h3>
+                        Create Websites
+                    </h3>
+
+                    <p>
+                        Build websites with AI
+                    </p>
+
+                </div>
+
+
+
+                <!-- WRITING -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('writing')"
+                >
+
+                    ✍️
+
+                    <h3>
+                        Write Content
+                    </h3>
+
+                    <p>
+                        Articles, blogs and copy
+                    </p>
+
+                </div>
+
+
+
+                <!-- PRESENTATION -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('presentation')"
+                >
+
+                    📊
+
+                    <h3>
+                        Make Presentations
+                    </h3>
+
+                    <p>
+                        Create beautiful slides
+                    </p>
+
+                </div>
+
+
+
+                <!-- CODING -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('coding')"
+                >
+
+                    💻
+
+                    <h3>
+                        Code
+                    </h3>
+
+                    <p>
+                        Build and debug software
+                    </p>
+
+                </div>
+
+
+
+                <!-- STUDY -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('study')"
+                >
+
+                    📚
+
+                    <h3>
+                        Study
+                    </h3>
+
+                    <p>
+                        Learn and research faster
+                    </p>
+
+                </div>
+
+
+
+                <!-- ADS -->
+
+                <div
+                    class="category-card"
+                    onclick="selectCategory('ads')"
+                >
+
+                    📢
+
+                    <h3>
+                        Create Ads
+                    </h3>
+
+                    <p>
+                        Create marketing content
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="script.js"></script>
+
+    <script>
+
+    document
+        .getElementById("toolSearch")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                searchTools();
+
+            }
+
+        });
+
+</script>
+
+</body>
+
+</html>
