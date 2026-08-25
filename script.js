@@ -2312,6 +2312,24 @@ let selectedCategory = "";
 let selectedPurpose = "";
 let selectedExperience = "";
 
+// ==========================================
+// ↩️ FINDER BACK BUTTON
+// ==========================================
+
+let finderHistory = [];
+
+function goBack() {
+
+    if (finderHistory.length > 0) {
+
+        const previousPage = finderHistory.pop();
+
+        document.querySelector(".categories").innerHTML = previousPage;
+
+    }
+
+}
+
 function startFinder() {
 
     document.querySelector(".categories").scrollIntoView({
@@ -2327,9 +2345,14 @@ function selectCategory(category) {
 
     const data = categoryData[category];
 
+    finderHistory.push(
+    document.querySelector(".categories").innerHTML
+);
+
     document.querySelector(".categories").innerHTML = `
 
         <div class="finder-box">
+            <button class="back-button" onclick="goBack()">← Back</button>
 
             <h2>${data.title}</h2>
 
@@ -2364,9 +2387,14 @@ function selectPurpose(purpose) {
 
     selectedPurpose = purpose;
 
+    finderHistory.push(
+    document.querySelector(".categories").innerHTML
+);
+
     document.querySelector(".categories").innerHTML = `
 
         <div class="finder-box">
+            <button class="back-button" onclick="goBack()">← Back</button>
 
             <h2>What's your experience level?</h2>
 
@@ -2400,9 +2428,13 @@ function showBudget(experience) {
 
     selectedExperience = experience;
 
+    selectedExperience = experience;
+
     document.querySelector(".categories").innerHTML = `
 
         <div class="finder-box">
+
+            <button class="back-button" onclick="goBack()">← Back</button>
 
             <h2>What's your monthly budget?</h2>
 
@@ -2413,23 +2445,23 @@ function showBudget(experience) {
             <div class="option-grid">
 
                 <button class="option-button"
-                    onclick="showResults('Free')">
-                    🆓 Free
+                    onclick="showResults('Most Affordable')">
+                    🆓 Most Affordable
                 </button>
 
                 <button class="option-button"
-                    onclick="showResults('Under $10')">
-                    💵 Under $10
+                    onclick="showResults('Most Reasonable')">
+                    💵 Most Reasonable
                 </button>
 
                 <button class="option-button"
-                    onclick="showResults('$10 - $30')">
-                    💳 $10 - $30
+                    onclick="showResults('Pro Level')">
+                    💳 Pro Level
                 </button>
 
                 <button class="option-button"
-                    onclick="showResults('$30+')">
-                    💎 $30+
+                    onclick="showResults('Premium')">
+                    💎 Premium
                 </button>
 
             </div>
@@ -2440,9 +2472,14 @@ function showBudget(experience) {
 
 }
 
+
 function showResults(budget) {
 
     window.currentBudget = budget;
+
+    finderHistory.push(
+    document.querySelector(".categories").innerHTML
+);
 
     const matchingTools = aiTools.filter(tool => {
 
@@ -2452,153 +2489,189 @@ function showResults(budget) {
     });
 
 
-   const scoredTools = matchingTools.map(tool => {
+    const scoredTools = matchingTools.map(tool => {
 
-    let score = 0;
-
-
-    // 🎯 TASK MATCH
-    score += 40;
+        let score = 0;
 
 
-    // ⭐ TOOL QUALITY
-    score += (tool.rating / 5) * 15;
+        // 🎯 TASK MATCH
 
-    // 🧑‍💻 EXPERIENCE MATCH
-
-if (selectedExperience === tool.difficulty) {
-
-    score += 20;
-
-}
-
-else if (
-    selectedExperience === "Beginner" &&
-    tool.difficulty === "Intermediate"
-) {
-
-    score += 12;
-
-}
-
-else if (
-    selectedExperience === "Intermediate" &&
-    tool.difficulty === "Beginner"
-) {
-
-    score += 15;
-
-}
-
-else if (
-    selectedExperience === "Advanced" &&
-    tool.difficulty === "Intermediate"
-) {
-
-    score += 15;
-
-}
-
-else {
-
-    score += 5;
-
-}
+        score += 40;
 
 
-    // 💰 BUDGET MATCH
+        // ⭐ TOOL QUALITY
 
-    if (budget === "Most Affordable") {
+        score += (tool.rating / 5) * 15;
 
-        if (tool.priceType === "free") {
-            score += 35;
-        }
 
-        else if (tool.priceType === "freemium") {
-            score += 30;
-        }
+        // 🧑‍💻 EXPERIENCE MATCH
 
-        else if (tool.priceType === "trial") {
+        if (selectedExperience === tool.difficulty) {
+
             score += 20;
+
         }
 
-        else {
-            score += 0;
-        }
-
-    }
-
-    else if (budget === "Most Reasonable") {
-
-        if (tool.priceType === "free") {
-            score += 35;
-        }
-
-        else if (tool.priceType === "freemium") {
-            score += 32;
-        }
-
-        else if (tool.priceType === "trial") {
-            score += 25;
-        }
-
-        else {
-            score += 15;
-        }
-
-    }
-
-    else if (budget === "Pro") {
-
-        if (
-            tool.priceType === "free" ||
-            tool.priceType === "freemium"
+        else if (
+            selectedExperience === "Beginner" &&
+            tool.difficulty === "Intermediate"
         ) {
-            score += 30;
+
+            score += 12;
+
         }
 
-        else if (tool.priceType === "trial") {
-            score += 25;
+        else if (
+            selectedExperience === "Intermediate" &&
+            tool.difficulty === "Beginner"
+        ) {
+
+            score += 15;
+
         }
 
-        else {
-            score += 35;
-        }
+        else if (
+            selectedExperience === "Advanced" &&
+            tool.difficulty === "Intermediate"
+        ) {
 
-    }
+            score += 15;
 
-    else if (budget === "Premium") {
-
-        if (tool.priceType === "paid") {
-            score += 35;
-        }
-
-        else if (tool.priceType === "freemium") {
-            score += 30;
-        }
-
-        else if (tool.priceType === "trial") {
-            score += 25;
         }
 
         else {
-            score += 25;
+
+            score += 5;
+
         }
 
-    }
+
+        // 💰 BUDGET MATCH
+
+        if (budget === "Most Affordable") {
+
+            if (tool.priceType === "free") {
+
+                score += 35;
+
+            }
+
+            else if (tool.priceType === "freemium") {
+
+                score += 30;
+
+            }
+
+            else if (tool.priceType === "trial") {
+
+                score += 20;
+
+            }
+
+            else {
+
+                score += 0;
+
+            }
+
+        }
 
 
-    // 📊 FINAL MATCH SCORE
+        else if (budget === "Most Reasonable") {
 
-    return {
-        ...tool,
-        matchScore: Math.min(
-            Math.round((score / 130) * 100),
-            100
-        )
-    };
+            if (tool.priceType === "free") {
 
-});
+                score += 35;
+
+            }
+
+            else if (tool.priceType === "freemium") {
+
+                score += 32;
+
+            }
+
+            else if (tool.priceType === "trial") {
+
+                score += 25;
+
+            }
+
+            else {
+
+                score += 15;
+
+            }
+
+        }
+
+
+        else if (budget === "Pro Level") {
+
+            if (
+                tool.priceType === "free" ||
+                tool.priceType === "freemium"
+            ) {
+
+                score += 30;
+
+            }
+
+            else if (tool.priceType === "trial") {
+
+                score += 25;
+
+            }
+
+            else {
+
+                score += 35;
+
+            }
+
+        }
+
+
+        else if (budget === "Premium") {
+
+            if (tool.priceType === "paid") {
+
+                score += 35;
+
+            }
+
+            else if (tool.priceType === "freemium") {
+
+                score += 30;
+
+            }
+
+            else if (tool.priceType === "trial") {
+
+                score += 25;
+
+            }
+
+            else {
+
+                score += 25;
+
+            }
+
+        }
+
+
+        // 📊 FINAL MATCH SCORE
+
+        return {
+            ...tool,
+            matchScore: Math.min(
+                Math.round((score / 130) * 100),
+                100
+            )
+        };
+
+    });
 
 
     const results = scoredTools
@@ -2638,30 +2711,31 @@ else {
                 "4️⃣",
                 "5️⃣"
             ];
+
             let recommendationLabel = "";
 
-if (index === 0) {
+            if (index === 0) {
 
-    recommendationLabel = `
-        <span class="recommendation-badge">
-            🏆 Best Overall
-        </span>
-    `;
+                recommendationLabel = `
+                    <span class="recommendation-badge">
+                        🏆 Best Overall
+                    </span>
+                `;
 
-}
+            }
 
-else if (
-    tool.priceType === "free" ||
-    tool.priceType === "freemium"
-) {
+            else if (
+                tool.priceType === "free" ||
+                tool.priceType === "freemium"
+            ) {
 
-    recommendationLabel = `
-        <span class="recommendation-badge">
-            💰 Great Value
-        </span>
-    `;
+                recommendationLabel = `
+                    <span class="recommendation-badge">
+                        💰 Great Value
+                    </span>
+                `;
 
-}
+            }
 
 
             toolsHTML += `
@@ -2693,60 +2767,81 @@ else if (
 
                         <div class="tool-rating">
 
-    ⭐ ${tool.userRating.toFixed(1)}/5
+                            <span class="overall-label">
+                                Overall rating:
+                            </span>
 
-    <span class="rating-count">
+                            <span class="overall-stars">
 
-        ${tool.ratingCount} ${
-            tool.ratingCount === 1 ? "rating" : "ratings"
-        }
+                                ${[1, 2, 3, 4, 5].map(star => `
 
-    </span>
+                                    <span class="${tool.averageRating >= star ? "overall-star active" : "overall-star"}">
+                                        ★
+                                    </span>
 
-</div>
+                                `).join("")}
+
+                            </span>
+
+                            <span class="overall-score">
+                                ${tool.averageRating.toFixed(1)}/5
+                            </span>
+
+                            <span class="rating-count">
+
+                                (${tool.ratingCount} ${
+                                    tool.ratingCount === 1 ? "rating" : "ratings"
+                                })
+
+                            </span>
+
+                        </div>
                           
-                         <div class="user-rating">
+                        <div class="user-rating">
 
-    <p>Rate this tool:</p>
+                            <p>Your rating:</p>
 
-    <div class="stars">
+                            <div class="stars">
 
-        ${[1, 2, 3, 4, 5].map(star => `
+                                ${[1, 2, 3, 4, 5].map(star => `
 
-            <button
-                class="star-button ${tool.userRating >= star ? "active" : ""}"
-                onclick="rateTool('${tool.name}', ${star})">
+                                    <button
+                                        class="star-button ${tool.userRating >= star ? "active" : ""}"
+                                        onclick="rateTool('${tool.name}', ${star})">
 
-                ★
+                                        ★
 
-            </button>
+                                    </button>
 
-        `).join("")}
+                                `).join("")}
 
-    </div>
+                            </div>
 
-</div>
+                        </div>
 
 
                         <p>
 
-                              ${tool.description}
+                            ${tool.description}
 
                         </p>
 
+
                         <div class="tool-best-for">
 
-    🎯 <strong>Best for:</strong>
-    ${tool.bestFor || "General AI use"}
+                            🎯 <strong>Best for:</strong>
+                            ${tool.bestFor || "General AI use"}
 
-</div>
+                        </div>
 
-<div class="tool-match-reason">
 
-    ✅ Recommended because it matches your
-    <strong>${selectedPurpose}</strong> requirement.
+                        <div class="tool-match-reason">
 
-</div>
+                            ✅ Recommended because it matches your
+                            <strong>${selectedPurpose}</strong> requirement.
+
+                        </div>
+
 
                         <div class="tool-details">
 
@@ -2784,6 +2879,8 @@ else if (
     document.querySelector(".categories").innerHTML = `
 
         <div class="results-box">
+
+            <button class="back-button" onclick="goBack()">← Back</button>
 
             <div class="results-icon">
 
@@ -2838,6 +2935,8 @@ else if (
     `;
 
 }
+
+
 function searchTools() {
 
     const searchInput = document.getElementById("toolSearch");
@@ -3021,49 +3120,67 @@ function searchTools() {
     let detectedBudget = null;
 
 
+    // PREMIUM
+
     if (
-        searchText.includes("free") ||
-        searchText.includes("no cost") ||
-        searchText.includes("without paying") ||
-        searchText.includes("zero cost")
-    ) {
-
-        detectedBudget = "Free";
-
-    }
-
-
-    else if (
-        searchText.includes("under $10") ||
-        searchText.includes("less than $10") ||
-        searchText.includes("below $10")
-    ) {
-
-        detectedBudget = "Under $10";
-
-    }
-
-
-    else if (
-        searchText.includes("$10") ||
-        searchText.includes("$20") ||
-        searchText.includes("$30") ||
-        searchText.includes("10 to 30")
-    ) {
-
-        detectedBudget = "$10 - $30";
-
-    }
-
-
-    else if (
         searchText.includes("$30+") ||
         searchText.includes("over $30") ||
         searchText.includes("more than $30") ||
         searchText.includes("premium")
     ) {
 
-        detectedBudget = "$30+";
+        detectedBudget = "Premium";
+
+    }
+
+
+    // MOST AFFORDABLE
+
+    else if (
+        searchText.includes("free") ||
+        searchText.includes("no cost") ||
+        searchText.includes("without paying") ||
+        searchText.includes("zero cost") ||
+        searchText.includes("most affordable")
+    ) {
+
+        detectedBudget = "Most Affordable";
+
+    }
+
+
+    // MOST REASONABLE
+
+    else if (
+        searchText.includes("cheap") ||
+        searchText.includes("affordable") ||
+        searchText.includes("reasonable") ||
+        searchText.includes("budget friendly") ||
+        searchText.includes("budget-friendly") ||
+        searchText.includes("most reasonable") ||
+        searchText.includes("under $10") ||
+        searchText.includes("less than $10") ||
+        searchText.includes("below $10")
+    ) {
+
+        detectedBudget = "Most Reasonable";
+
+    }
+
+
+    // PRO LEVEL
+
+    else if (
+        searchText.includes("pro level") ||
+        searchText.includes("professional") ||
+        searchText.includes("pro tools") ||
+        searchText.includes("10 to 30") ||
+        searchText.includes("$10") ||
+        searchText.includes("$20") ||
+        searchText.includes("$30")
+    ) {
+
+        detectedBudget = "Pro Level";
 
     }
 
@@ -3145,10 +3262,10 @@ function searchTools() {
 
 
         // ==========================================
-        // BUDGET MATCH
+        // 💰 BUDGET MATCH
         // ==========================================
 
-        if (detectedBudget === "Free") {
+        if (detectedBudget === "Most Affordable") {
 
             if (tool.priceType === "free") {
 
@@ -3171,7 +3288,7 @@ function searchTools() {
         }
 
 
-        else if (detectedBudget === "Under $10") {
+        else if (detectedBudget === "Most Reasonable") {
 
             if (tool.priceType === "free") {
 
@@ -3200,7 +3317,7 @@ function searchTools() {
         }
 
 
-        else if (detectedBudget === "$10 - $30") {
+        else if (detectedBudget === "Pro Level") {
 
             if (
                 tool.priceType === "free" ||
@@ -3226,7 +3343,7 @@ function searchTools() {
         }
 
 
-        else if (detectedBudget === "$30+") {
+        else if (detectedBudget === "Premium") {
 
             if (tool.priceType === "paid") {
 
@@ -3283,6 +3400,8 @@ function searchTools() {
     showSearchResults(results, searchText);
 
 }
+
+
 function showSearchResults(results, searchText) {
 
     let toolsHTML = "";
@@ -3476,6 +3595,8 @@ function showSearchResults(results, searchText) {
         });
 
 }
+
+
 /* =========================================
    ⭐ RATE A TOOL
 ========================================= */
@@ -3492,28 +3613,27 @@ async function rateTool(toolName, selectedRating) {
     }
 
 
-    // ⭐ Prevent this browser from rating the same tool twice
+    // Check whether THIS device has already rated this tool
 
     const ratingKey = "rated_" + toolName;
 
     if (localStorage.getItem(ratingKey)) {
 
-        return;
+        alert("You have already rated this tool.");
 
+        return;
     }
 
 
     try {
 
-        // ⭐ Save the rating to Supabase
+        // Save rating to Supabase
 
         const { error } = await supabaseClient
             .from("ratings")
             .insert({
-
                 tool_name: toolName,
                 rating: selectedRating
-
             });
 
 
@@ -3524,30 +3644,40 @@ async function rateTool(toolName, selectedRating) {
                 error
             );
 
-            alert("Could not save your rating. Please try again.");
+            alert(
+                "Could not save your rating. Please try again."
+            );
 
             return;
-
         }
 
 
-        // ⭐ Remember that THIS browser has rated this tool
+        // Remember this device's personal rating
 
         localStorage.setItem(
-            ratingKey,
+            "rated_" + toolName,
             "true"
         );
 
+        localStorage.setItem(
+            "rating_" + toolName,
+            selectedRating
+        );
 
-        // ⭐ Reload all ratings from Supabase
+
+        // Update the personal rating immediately
+
+        tool.userRating = selectedRating;
+
+
+        // Reload community ratings
 
         await loadRatings();
 
 
-        // ⭐ Refresh the results
+        // Refresh the results
 
         showResults(window.currentBudget);
-
 
     } catch (error) {
 
@@ -3564,6 +3694,7 @@ async function rateTool(toolName, selectedRating) {
 
 }
 
+
 async function loadRatings() {
 
     const { data, error } = await supabaseClient
@@ -3579,83 +3710,87 @@ async function loadRatings() {
         );
 
         return;
-
     }
 
 
-    // Reset ratings
+    // Reset community ratings
 
     aiTools.forEach(tool => {
 
-        tool.userRating = 0;
+        tool.averageRating = 0;
         tool.ratingCount = 0;
+
+
+        // Load THIS DEVICE'S rating
+
+        const personalRating =
+            localStorage.getItem(
+                "rating_" + tool.name
+            );
+
+
+        tool.userRating =
+            personalRating
+                ? parseFloat(personalRating)
+                : 0;
 
     });
 
 
-    // Calculate average rating for each tool
+    // Group ratings by tool
+
+    const ratingGroups = {};
+
 
     data.forEach(row => {
 
-        const tool = aiTools.find(
-            item => item.name === row.tool_name
-        );
+        if (!ratingGroups[row.tool_name]) {
 
-
-        if (!tool) {
-            return;
-        }
-
-
-        if (!tool._ratings) {
-
-            tool._ratings = [];
+            ratingGroups[row.tool_name] = [];
 
         }
 
 
-        tool._ratings.push(
-            row.rating
+        ratingGroups[row.tool_name].push(
+            Number(row.rating)
         );
 
     });
 
 
-    // Calculate averages
+    // Calculate community average
 
     aiTools.forEach(tool => {
 
+        const ratings =
+            ratingGroups[tool.name];
+
+
         if (
-            tool._ratings &&
-            tool._ratings.length > 0
+            ratings &&
+            ratings.length > 0
         ) {
 
             const total =
-                tool._ratings.reduce(
+                ratings.reduce(
                     (sum, rating) =>
                         sum + rating,
                     0
                 );
 
 
-            tool.userRating =
-                total /
-                tool._ratings.length;
+            tool.averageRating =
+                total / ratings.length;
 
 
             tool.ratingCount =
-                tool._ratings.length;
-
-        }
-
-        else {
-
-            tool.userRating = 0;
-            tool.ratingCount = 0;
+                ratings.length;
 
         }
 
     });
 
 }
+
+
 loadRatings();
