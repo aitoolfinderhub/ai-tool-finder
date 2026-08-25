@@ -1,3 +1,11 @@
+const SUPABASE_URL = "https://aekoqkedglamqobxxiey.supabase.co";
+const SUPABASE_KEY = "sb_publishable_BdHgiKZpNyEG6v8tdWcKsQ_f2Jcghva";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
 const aiTools = [
 
     {
@@ -2206,26 +2214,6 @@ const aiTools = [
    ⭐ LOAD SAVED USER RATINGS
 ========================================= */
 
-aiTools.forEach(tool => {
-
-    const savedRating = localStorage.getItem(
-        "rating_" + tool.name
-    );
-
-    const savedCount = localStorage.getItem(
-        "ratingCount_" + tool.name
-    );
-
-    tool.userRating = savedRating
-        ? parseFloat(savedRating)
-        : 0;
-
-    tool.ratingCount = savedCount
-        ? parseInt(savedCount)
-        : 0;
-
-});
-
 
 const categoryData = {
 
@@ -2520,7 +2508,7 @@ else {
 
     // 💰 BUDGET MATCH
 
-    if (budget === "Free") {
+    if (budget === "Most Affordable") {
 
         if (tool.priceType === "free") {
             score += 35;
@@ -2540,7 +2528,7 @@ else {
 
     }
 
-    else if (budget === "Under $10") {
+    else if (budget === "Most Reasonable") {
 
         if (tool.priceType === "free") {
             score += 35;
@@ -2560,7 +2548,7 @@ else {
 
     }
 
-    else if (budget === "$10 - $30") {
+    else if (budget === "Pro") {
 
         if (
             tool.priceType === "free" ||
@@ -2579,7 +2567,7 @@ else {
 
     }
 
-    else if (budget === "$30+") {
+    else if (budget === "Premium") {
 
         if (tool.priceType === "paid") {
             score += 35;
@@ -3492,78 +3480,182 @@ function showSearchResults(results, searchText) {
    ⭐ RATE A TOOL
 ========================================= */
 
-function rateTool(toolName, selectedRating) {
+async function rateTool(toolName, selectedRating) {
 
     const tool = aiTools.find(
         item => item.name === toolName
     );
 
     if (!tool) {
-        alert("Tool not found!");
+        console.error("Tool not found!");
         return;
     }
 
+
+    // ⭐ Prevent this browser from rating the same tool twice
 
     const ratingKey = "rated_" + toolName;
 
-
     if (localStorage.getItem(ratingKey)) {
 
-        alert("You have already rated this tool.");
-
         return;
+
     }
 
 
-    const oldUserRating =
-        parseFloat(
-            localStorage.getItem(
-                "rating_" + toolName
-            )
-        ) || 0;
+    try {
+
+        // ⭐ Save the rating to Supabase
+
+        const { error } = await supabaseClient
+            .from("ratings")
+            .insert({
+
+                tool_name: toolName,
+                rating: selectedRating
+
+            });
 
 
-    const oldCount =
-        parseInt(
-            localStorage.getItem(
-                "ratingCount_" + toolName
-            )
-        ) || 0;
+        if (error) {
+
+            console.error(
+                "Rating could not be saved:",
+                error
+            );
+
+            alert("Could not save your rating. Please try again.");
+
+            return;
+
+        }
 
 
-    const newCount = oldCount + 1;
+        // ⭐ Remember that THIS browser has rated this tool
+
+        localStorage.setItem(
+            ratingKey,
+            "true"
+        );
 
 
-    const newRating =
-        (
-            (oldUserRating * oldCount) +
-            selectedRating
-        ) / newCount;
+        // ⭐ Reload all ratings from Supabase
+
+        await loadRatings();
 
 
-    tool.userRating = newRating;
+        // ⭐ Refresh the results
 
-    tool.ratingCount = newCount;
-
-
-    localStorage.setItem(
-        "rating_" + toolName,
-        newRating
-    );
+        showResults(window.currentBudget);
 
 
-    localStorage.setItem(
-        "ratingCount_" + toolName,
-        newCount
-    );
+    } catch (error) {
 
+        console.error(
+            "Rating error:",
+            error
+        );
 
-    localStorage.setItem(
-        ratingKey,
-        "true"
-    );
+        alert(
+            "Something went wrong while saving your rating."
+        );
 
-
-    showResults(window.currentBudget);
+    }
 
 }
+
+async function loadRatings() {
+
+    const { data, error } = await supabaseClient
+        .from("ratings")
+        .select("tool_name, rating");
+
+
+    if (error) {
+
+        console.error(
+            "Could not load ratings:",
+            error
+        );
+
+        return;
+
+    }
+
+
+    // Reset ratings
+
+    aiTools.forEach(tool => {
+
+        tool.userRating = 0;
+        tool.ratingCount = 0;
+
+    });
+
+
+    // Calculate average rating for each tool
+
+    data.forEach(row => {
+
+        const tool = aiTools.find(
+            item => item.name === row.tool_name
+        );
+
+
+        if (!tool) {
+            return;
+        }
+
+
+        if (!tool._ratings) {
+
+            tool._ratings = [];
+
+        }
+
+
+        tool._ratings.push(
+            row.rating
+        );
+
+    });
+
+
+    // Calculate averages
+
+    aiTools.forEach(tool => {
+
+        if (
+            tool._ratings &&
+            tool._ratings.length > 0
+        ) {
+
+            const total =
+                tool._ratings.reduce(
+                    (sum, rating) =>
+                        sum + rating,
+                    0
+                );
+
+
+            tool.userRating =
+                total /
+                tool._ratings.length;
+
+
+            tool.ratingCount =
+                tool._ratings.length;
+
+        }
+
+        else {
+
+            tool.userRating = 0;
+            tool.ratingCount = 0;
+
+        }
+
+    });
+
+}
+loadRatings();
